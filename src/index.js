@@ -115,11 +115,11 @@ async function startApolloServer() {
     }
   );
   await server.start();
+  // changed the default path from /graphql to /
   server.applyMiddleware({
     app,
     path: "/",
   });
-
   httpServer.listen(PORT, () => {
     console.log(`🚀 Query endpoint ready at http://localhost:${PORT}${server.graphqlPath}`);
     console.log(`🚀 Subscription endpoint ready at ws://localhost:${PORT}${subscriptionServer.wsServer.options.path}`);
