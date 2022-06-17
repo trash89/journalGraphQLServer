@@ -117,7 +117,7 @@ async function startApolloServer() {
   await server.start();
   server.applyMiddleware({
     app,
-    path: "/graphql",
+    path: "/",
   });
 
   httpServer.listen(PORT, () => {
