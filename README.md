@@ -1,25 +1,28 @@
 # JournalGraphSQL Server for Journal Application
 
-The Journal Application is an utility allowing to keep an online journal of activity. It allows to enter a description of daily activity, things already done,and things to do.
+The Journal Application is an utility allowing to keep an online journal of activity. It allows to enter a description of daily activities, things already done and things to do.
 
-The application is built with three big components:
+The application is built with three components:
 
 - the database server, with a relational database schema deployed on Heroku PostgreSQL service
-- the graphql server, built with Express, Apollo server and Prisma ORM - this repository contains the database schema definition and graphql server
+- the GraphQL server, built with the latest Express, Apollo and Prisma ORM packages
 - the frontend application, built with NextJS, Redux and Material-UI, relaying on the graphql server to communicate with the database
 
-This repository contains the graphql server for the Journal application and the database schema definition.\
-The passwords are stored encrypted with the bcryptjs package :
+This repository contains the GraphQL server for the Journal application and the database schema definition.
+
+This GraphQL server implements queries, mutations and subscriptions using Express, Apollo and Prisma ORM. These operations can be lauched from the GraphQL Playground.
+
+## Important !!!
+
+The passwords are stored encrypted with the bcryptjs package, and cannot be 'guessed' or retrieved :
 
 ```
 const hashedPassword = await bcrypt.hash(args.profile.Password, 10);
 ```
 
-## Important !!!
+Don't use email addresses as usernames ! Use simple usernames, like user1, user2, etc.
 
-Don't use email addresses as username! Use simple usernames, like user1, user2, etc.
-
-In order to keep the database small and avoid extra cost, in the production, on the Heroku postgreSQL database, a cleanup procedure is running once a day, cleaning up all entries that don't belongs to the profiles 1 and 2 (admin profile and demo profile).
+In order to keep the database small and avoid extra cost, in the production, on the Heroku postgreSQL database, a cleanup procedure is running once a day, cleaning up all database entries that don't belong to the profiles 1 and 2 (admin profile and demo profile).
 
 The execution of the cleanupDatabase() function in src/index.js depends of the variable NODE_ENV.\
 Define the variable NODE_ENV="development" in your .profile and the cleanup function will not run.
@@ -30,7 +33,7 @@ The application is live on Heroku :
 
 https://journalgraphqlserver.herokuapp.com/
 
-Bellow is the relational database schema exposed to GraphQL server:
+Bellow is the relational database schema exposed to the GraphQL server:
 
 ![Database Schema ](./ERDiagramJournal.png)
 
@@ -58,12 +61,12 @@ On a local MySQL database, create an empty schema and configure the connection s
 DATABASE_URL="mysql://user:password@host:3306/journal"
 CHECKPOINT_DISABLE=1
 JWT_LIFETIME=1d
-PORT:4000
+PORT=4000
 ```
 
 ### `npx prisma db push`
 
-Create the database tables if does not exists:
+Create the database tables if they do not exist.\
 Here is the documention relative to the Prisma CLI command db-push: https://www.prisma.io/docs/reference/api-reference/command-reference#db-push
 
 ```bash
@@ -84,18 +87,19 @@ npx prisma generate
 node src/index.js
 ```
 
-If nodemon utility is installed globally (`npm -g install nodemon`), then use :
+If nodemon utility is installed globally (`npm -g install nodemon`), then launch :
 
 ```
 nodemon src/index.js
 ```
 
-Runs the app in the development mode.
+Run the application in the development mode.\
+A GraphQL Playground is allowing to launch queries, mutations and subscriptions against the database.\
 Open [http://localhost:4000](http://localhost:4000) to view it in your browser.
 
 ### `register a profile`
 
-In GraphQL PLayground, launch the following mutation to register a profile:
+In GraphQL Playground, launch the following mutation to register a profile:
 
 ```
 mutation{
@@ -111,11 +115,12 @@ mutation{
 }
 ```
 
-The server responds with a token and the profile it created.
+The server responds with a token and the profile it had been created.
 
 ### `Authenticate`
 
-Open a new tab in Playground and add the token you obtained with the register mutation, in the HTTP HEADERS. This authenticates the subsequent sessions you may open on different tabs:
+Open a new tab in GraphQL Playground and add the token you obtained with the register mutation, in the HTTP HEADERS.\
+This authenticates the subsequent sessions you may open on different tabs:
 
 ```
 {
