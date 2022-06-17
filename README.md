@@ -15,15 +15,22 @@ The passwords are stored encrypted with the bcryptjs package :
 const hashedPassword = await bcrypt.hash(args.profile.Password, 10);
 ```
 
-No verification on email addresses are done, you can use a simple username (no email address) too.
+## Important !!!
 
-## Frontend on Heroku
+Don't use email addresses as username! Use simple usernames, like user1, user2, etc.
+
+In order to keep the database small and avoid extra cost, in the production, on the Heroku postgreSQL database, a cleanup procedure is running once a day, cleaning up all entries that don't belongs to the profiles 1 and 2 (admin profile and demo profile).
+
+The execution of the cleanupDatabase() function in src/index.js depends of the variable NODE_ENV.\
+Define the variable NODE_ENV="development" in your .profile and the cleanup function will not run.
+
+## GraphQL Server Frontend on Heroku
 
 The application is live on Heroku :
 
 https://journalgraphqlserver.herokuapp.com/
 
-Bellow is the relational database schema exposed to GraphQL:
+Bellow is the relational database schema exposed to GraphQL server:
 
 ![Database Schema ](./ERDiagramJournal.png)
 

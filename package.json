@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx prisma generate && export CHECKPOINT_DISABLE=1 && node src/index.js"
+    "start": "npx prisma generate && export CHECKPOINT_DISABLE=1 && export NODE_ENV='production' && node src/index.js"
   },
   "keywords": [
     "apollo",

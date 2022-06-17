@@ -120,10 +120,71 @@ async function startApolloServer() {
     app,
     path: "/",
   });
+
   httpServer.listen(PORT, () => {
     console.log(`🚀 Query endpoint ready at http://localhost:${PORT}${server.graphqlPath}`);
     console.log(`🚀 Subscription endpoint ready at ws://localhost:${PORT}${subscriptionServer.wsServer.options.path}`);
   });
 }
 
+if (process.env.NODE_ENV == "production") {
+  // interval= 1 day= 24h * 60min * 60sec *1000
+  const INTERVAL = 1000 * 60 * 60 * 24;
+  setInterval(() => {
+    console.log("Launching cleanupDatabase...");
+    cleanupDatabase();
+    console.log("Finished cleanupDatabase.");
+  }, INTERVAL);
+}
 startApolloServer();
+
+async function cleanupDatabase() {
+  //build profile list to be deleted
+  const profilesToDelete = await prisma.profile.findMany({
+    where: { idProfile: { notIn: [1, 2] } },
+  });
+  const arrayProfilesToDelete = profilesToDelete.map((profile) => profile.idProfile);
+  console.log("Profiles to delete:", arrayProfilesToDelete);
+
+  //build client list to be deleted
+  const clientsToDelete = await prisma.client.findMany({
+    where: { idProfile: { in: arrayProfilesToDelete } },
+  });
+  const arrayClientsToDelete = clientsToDelete.map((client) => client.idClient);
+  console.log("Clients to delete:", arrayClientsToDelete);
+
+  // delete from journal where idProfile not in (1,2)
+  const deleteJournal = prisma.journal.deleteMany({
+    where: {
+      idProfile: { notIn: [1, 2] },
+    },
+  });
+
+  // delete from subproject where idClient in  list clients to delete
+  const deleteSubproject = prisma.subproject.deleteMany({
+    where: { idClient: { in: arrayClientsToDelete } },
+  });
+
+  // delete from project where idClient in  list clients to delete
+  const deleteProject = prisma.project.deleteMany({
+    where: { idClient: { in: arrayClientsToDelete } },
+  });
+
+  // delete from client where idProfile  not in [1, 2]
+  const deleteClient = prisma.client.deleteMany({
+    where: { idProfile: { notIn: [1, 2] } },
+  });
+
+  // delete from profile where idProfile  not in [1, 2]
+  const deleteProfile = prisma.profile.deleteMany({
+    where: {
+      idProfile: { notIn: [1, 2] },
+    },
+  });
+
+  await prisma.$transaction([deleteJournal]);
+  await prisma.$transaction([deleteSubproject]);
+  await prisma.$transaction([deleteProject]);
+  await prisma.$transaction([deleteClient]);
+  await prisma.$transaction([deleteProfile]);
+}
