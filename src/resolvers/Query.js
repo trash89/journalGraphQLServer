@@ -5,7 +5,7 @@ const profileIncludes = {
   select: {
     idProfile: true,
     Username: true,
-    Password: true,
+    Password: false,
     Is_Admin: true,
   },
 };

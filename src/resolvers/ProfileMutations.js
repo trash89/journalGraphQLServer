@@ -19,7 +19,9 @@ async function createProfile(parent, args, context, info) {
   const newProfileObj = {
     Username: args.profile.Username,
     Password: hashedPassword,
-    Is_Admin: args.profile.Is_Admin,
+    // Modified Is_Admin to avoid hacking the database once deployed on Heroku
+    //Is_Admin: args.profile.Is_Admin,
+    Is_Admin: "N",
   };
 
   const newProfile = await context.prisma.profile.create({
@@ -62,11 +64,13 @@ async function updateProfile(parent, args, context, info) {
     }
   }
   const hashedPassword = await bcrypt.hash(args.profile.Password, 10);
+  // Modified Is_Admin to avoid hacking the database once deployed on Heroku
   const updatedProfileObj = {
     idProfile: idProfileInt,
     Username: args.profile.Username,
     Password: hashedPassword,
-    Is_Admin: args.profile.Is_Admin,
+    //Is_Admin: args.profile.Is_Admin,
+    Is_Admin: "N",
   };
 
   const updatedProfile = await context.prisma.profile.update({
