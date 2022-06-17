@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model profile {
+  idProfile Int       @id @default(autoincrement())
+  Username  String    @unique(map: "Profile_UNIQUE") @db.VarChar(45)
+  Password  String    @db.VarChar(100)
+  Is_Admin  String    @default("N") @db.Char(1)
+  client    client[]
+  journal   journal[]
+}
+
+model client {
+  idProfile   Int
+  idClient    Int          @id @default(autoincrement())
+  Name        String       @db.VarChar(45)
+  Description String       @db.VarChar(100)
+  StartDate   DateTime     @db.Date
+  EndDate     DateTime?    @db.Date
+  profile     profile      @relation(fields: [idProfile], references: [idProfile], onDelete: NoAction, onUpdate: NoAction, map: "fk_Client_idProfile")
+  journal     journal[]
+  project     project[]
+  subproject  subproject[]
+
+  @@unique([idProfile, Name], map: "Client_UNIQUE")
+  @@index([idProfile], map: "fk_Client_1_idx")
+}
+
+model project {
+  idClient    Int
+  idProject   Int          @id @default(autoincrement())
+  Name        String       @db.VarChar(45)
+  Description String       @db.VarChar(100)
+  isDefault   String       @default("N") @db.Char(1)
+  StartDate   DateTime     @db.Date
+  EndDate     DateTime?    @db.Date
+  Finished    String       @default("N") @db.Char(1)
+  client      client       @relation(fields: [idClient], references: [idClient], onDelete: NoAction, onUpdate: NoAction, map: "fk_Project_idClient")
+  journal     journal[]
+  subproject  subproject[]
+
+  @@unique([idClient, Name], map: "Project_UNIQUE")
+  @@index([idClient], map: "fk_idClient_idx")
+}
+
+model subproject {
+  idProject    Int
+  idClient     Int
+  idSubproject Int       @id @default(autoincrement())
+  Name         String    @db.VarChar(45)
+  Description  String    @db.VarChar(100)
+  isDefault    String    @default("N") @db.Char(1)
+  StartDate    DateTime  @db.Date
+  EndDate      DateTime? @db.Date
+  Finished     String    @default("N") @db.Char(1)
+  client       client    @relation(fields: [idClient], references: [idClient], onDelete: NoAction, onUpdate: NoAction, map: "fk_Subproject_idClient")
+  project      project   @relation(fields: [idProject], references: [idProject], onDelete: NoAction, onUpdate: NoAction, map: "fk_Subproject_idProject")
+  journal      journal[]
+
+  @@unique([idProject, idClient, Name], map: "Subproject_UNIQUE")
+  @@index([idProject], map: "fk_Subproject_1_idx")
+  @@index([idClient], map: "fk_Subproject_2_idx")
+}
+
+model journal {
+  idProfile    Int
+  idClient     Int
+  idProject    Int
+  idSubproject Int
+  idJournal    Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime?  @db.Timestamp(6)
+  EntryDate    DateTime   @db.Date
+  Description  String
+  Todos        String?
+  ThingsDone   String?
+  DocUploaded  Bytes?
+  client       client     @relation(fields: [idClient], references: [idClient], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idClient")
+  profile      profile    @relation(fields: [idProfile], references: [idProfile], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idProfile")
+  project      project    @relation(fields: [idProject], references: [idProject], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idProject")
+  subproject   subproject @relation(fields: [idSubproject], references: [idSubproject], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idSubproject")
+
+  @@unique([idProfile, idClient, idProject, idSubproject, EntryDate], map: "Journal_UNIQUE")
+  @@index([idProfile], map: "fk_Journal_1_idx")
+  @@index([idClient], map: "fk_Journal_2_idx")
+  @@index([idProject], map: "fk_Journal_3_idx")
+  @@index([idSubproject], map: "fk_Journal_4_idx")
+}
