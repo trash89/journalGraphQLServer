@@ -6,7 +6,7 @@ The application is built with three components:
 
 - the database server, with a relational database schema deployed on Heroku PostgreSQL service
 - the GraphQL server, built with the latest Express, Apollo and Prisma ORM packages
-- the frontend application, built with NextJS, Redux and Material-UI, relaying on the graphql server to communicate with the database
+- the frontend application, built with ReactJS, Redux and Material-UI, relaying on the graphql server to communicate with the database
 
 This repository contains the GraphQL server for the Journal application and the database schema definition.
 
