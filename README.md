@@ -1,6 +1,6 @@
 # JournalGraphSQL Server for Journal Application
 
-The Journal Application is an utility allowing to keep an online journal of activity. It allows to enter a description of daily activities, things already done and things to do.
+The Journal Application is allowing to keep an online journal of activity. It allows to enter a description of daily activities, things already done and things to do.
 
 The application is built with three components:
 
