@@ -1,3 +1,4 @@
+const { Prisma } = require("@prisma/client");
 const { checkConnected } = require("../utils");
 async function createClient(parent, args, context, info) {
   const { idProfileConnected, foundConnected } = await checkConnected(context);
@@ -8,12 +9,21 @@ async function createClient(parent, args, context, info) {
     StartDate: args.client.StartDate,
     EndDate: args.client.EndDate,
   };
-  const createdClient = await context.prisma.client.create({
-    data: { ...newClientObj },
-  });
-
-  await context.pubsub.publish("CREATE_CLIENT", createdClient);
-  return createdClient;
+  try {
+    const createdClient = await context.prisma.client.create({
+      data: { ...newClientObj },
+    });
+    await context.pubsub.publish("CREATE_CLIENT", createdClient);
+    return createdClient;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, a new client cannot be created with this name");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function updateClient(parent, args, context, info) {
@@ -36,14 +46,23 @@ async function updateClient(parent, args, context, info) {
     StartDate: args.client.StartDate,
     EndDate: args.client.EndDate,
   };
+  try {
+    const updatedClient = await context.prisma.client.update({
+      where: { idClient: idClientInt },
+      data: { ...updatedClientObj },
+    });
 
-  const updatedClient = await context.prisma.client.update({
-    where: { idClient: idClientInt },
-    data: { ...updatedClientObj },
-  });
-
-  await context.pubsub.publish("UPDATE_CLIENT", updatedClient);
-  return updatedClient;
+    await context.pubsub.publish("UPDATE_CLIENT", updatedClient);
+    return updatedClient;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, there is already a client with this name");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function deleteClient(parent, args, context, info) {

@@ -1,3 +1,4 @@
+const { Prisma } = require("@prisma/client");
 const { checkConnected } = require("../utils");
 async function createSubproject(parent, args, context, info) {
   await checkConnected(context);
@@ -13,12 +14,22 @@ async function createSubproject(parent, args, context, info) {
     EndDate: args.subproject.EndDate,
     Finished: args.subproject.Finished,
   };
-  const createdSubproject = await context.prisma.subproject.create({
-    data: { ...newSubprojectObj },
-  });
+  try {
+    const createdSubproject = await context.prisma.subproject.create({
+      data: { ...newSubprojectObj },
+    });
 
-  await context.pubsub.publish("CREATE_SUBPROJECT", createdSubproject);
-  return createdSubproject;
+    await context.pubsub.publish("CREATE_SUBPROJECT", createdSubproject);
+    return createdSubproject;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, a subproject with this name already exists for this client and project");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function updateSubproject(parent, args, context, info) {
@@ -43,13 +54,22 @@ async function updateSubproject(parent, args, context, info) {
     EndDate: args.subproject.EndDate,
     Finished: args.subproject.Finished,
   };
-
-  const updatedSubproject = await context.prisma.subproject.update({
-    where: { idSubproject: idSubprojectInt },
-    data: { ...updatedSubprojectObj },
-  });
-  await context.pubsub.publish("UPDATE_SUBPROJECT", updatedSubproject);
-  return updatedSubproject;
+  try {
+    const updatedSubproject = await context.prisma.subproject.update({
+      where: { idSubproject: idSubprojectInt },
+      data: { ...updatedSubprojectObj },
+    });
+    await context.pubsub.publish("UPDATE_SUBPROJECT", updatedSubproject);
+    return updatedSubproject;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, there is already a subproject with this name for this client and project");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function deleteSubproject(parent, args, context, info) {

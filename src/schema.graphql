@@ -18,7 +18,7 @@ type Mutation {
   login(Username: String!, Password: String!): AuthPayload!
   register(profile: profileInput!): AuthPayload!
 
-  createProfile(profile: profileInput!): TProfile!
+  #createProfile(profile: profileInput!): TProfile!
   updateProfile(idProfile: ID!, profile: profileInput!): TProfile!
   deleteProfile(idProfile: ID!): TProfile!
 

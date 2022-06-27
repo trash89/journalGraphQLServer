@@ -1,3 +1,4 @@
+const { Prisma } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { APP_SECRET, checkConnected } = require("../utils");
@@ -24,12 +25,22 @@ async function createProfile(parent, args, context, info) {
     Is_Admin: "N",
   };
 
-  const newProfile = await context.prisma.profile.create({
-    data: { ...newProfileObj },
-  });
-  const retObject = { ...newProfile, Password: "is not displayed" };
-  await context.pubsub.publish("CREATE_PROFILE", retObject);
-  return retObject;
+  try {
+    const newProfile = await context.prisma.profile.create({
+      data: { ...newProfileObj },
+    });
+    const retObject = { ...newProfile, Password: "is not displayed" };
+    await context.pubsub.publish("CREATE_PROFILE", retObject);
+    return retObject;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, a new user cannot be created with this username");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function login(parent, args, context, info) {
@@ -63,24 +74,39 @@ async function updateProfile(parent, args, context, info) {
       throw new Error("cannot update other users");
     }
   }
+  const foundProfile = await context.prisma.profile.findUnique({
+    where: { idProfile: idProfileInt },
+  });
+  if (!foundProfile) {
+    throw new Error("No such user found");
+  }
+
   const hashedPassword = await bcrypt.hash(args.profile.Password, 10);
   // Modified Is_Admin to avoid hacking the database once deployed on Heroku
   const updatedProfileObj = {
     idProfile: idProfileInt,
     Username: args.profile.Username,
     Password: hashedPassword,
-    //Is_Admin: args.profile.Is_Admin,
-    Is_Admin: "N",
+    Is_Admin: foundProfile.Is_Admin,
   };
+  try {
+    const updatedProfile = await context.prisma.profile.update({
+      where: { idProfile: idProfileInt },
+      data: { ...updatedProfileObj },
+    });
 
-  const updatedProfile = await context.prisma.profile.update({
-    where: { idProfile: idProfileInt },
-    data: { ...updatedProfileObj },
-  });
-
-  const retObject = { ...updatedProfile, Password: "is not displayed" };
-  await context.pubsub.publish("UPDATE_PROFILE", retObject);
-  return retObject;
+    const retObject = { ...updatedProfile, Password: "is not displayed" };
+    await context.pubsub.publish("UPDATE_PROFILE", retObject);
+    return retObject;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, there is already a profile with this name");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function deleteProfile(parent, args, context, info) {

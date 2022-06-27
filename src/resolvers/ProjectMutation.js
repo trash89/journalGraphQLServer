@@ -1,3 +1,4 @@
+const { Prisma } = require("@prisma/client");
 const { checkConnected } = require("../utils");
 async function createProject(parent, args, context, info) {
   await checkConnected(context);
@@ -11,11 +12,21 @@ async function createProject(parent, args, context, info) {
     EndDate: args.project.EndDate,
     Finished: args.project.Finished,
   };
-  const createdProject = await context.prisma.project.create({
-    data: { ...newProjectObj },
-  });
-  await context.pubsub.publish("CREATE_PROJECT", createdProject);
-  return createdProject;
+  try {
+    const createdProject = await context.prisma.project.create({
+      data: { ...newProjectObj },
+    });
+    await context.pubsub.publish("CREATE_PROJECT", createdProject);
+    return createdProject;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, a project with this name already exists for this client");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function updateProject(parent, args, context, info) {
@@ -38,13 +49,22 @@ async function updateProject(parent, args, context, info) {
     EndDate: args.project.EndDate,
     Finished: args.project.Finished,
   };
-
-  const updatedProject = await context.prisma.project.update({
-    where: { idProject: idProjectInt },
-    data: { ...updatedProjectObj },
-  });
-  await context.pubsub.publish("UPDATE_PROJECT", updatedProject);
-  return updatedProject;
+  try {
+    const updatedProject = await context.prisma.project.update({
+      where: { idProject: idProjectInt },
+      data: { ...updatedProjectObj },
+    });
+    await context.pubsub.publish("UPDATE_PROJECT", updatedProject);
+    return updatedProject;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, there is already a project with this name for this client");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function deleteProject(parent, args, context, info) {

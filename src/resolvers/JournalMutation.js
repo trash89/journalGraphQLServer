@@ -1,3 +1,4 @@
+const { Prisma } = require("@prisma/client");
 const { checkConnected } = require("../utils");
 async function createJournal(parent, args, context, info) {
   await checkConnected(context);
@@ -21,11 +22,21 @@ async function createJournal(parent, args, context, info) {
     ThingsDone: args.journal.ThingsDone,
     DocUploaded: args.journal.DocUploaded,
   };
-  const createdJournal = await context.prisma.journal.create({
-    data: { ...newJournalObj },
-  });
-  await context.pubsub.publish("CREATE_JOURNAL", createdJournal);
-  return createdJournal;
+  try {
+    const createdJournal = await context.prisma.journal.create({
+      data: { ...newJournalObj },
+    });
+    await context.pubsub.publish("CREATE_JOURNAL", createdJournal);
+    return createdJournal;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, a journal entry already exists");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function updateJournal(parent, args, context, info) {
@@ -56,14 +67,23 @@ async function updateJournal(parent, args, context, info) {
     ThingsDone: args.journal.ThingsDone,
     DocUploaded: args.journal.DocUploaded,
   };
+  try {
+    const updatedJournal = await context.prisma.journal.update({
+      where: { idJournal: idJournalInt },
+      data: { ...updatedJournalObj },
+    });
 
-  const updatedJournal = await context.prisma.journal.update({
-    where: { idJournal: idJournalInt },
-    data: { ...updatedJournalObj },
-  });
-
-  await context.pubsub.publish("UPDATE_JOURNAL", updatedJournal);
-  return updatedJournal;
+    await context.pubsub.publish("UPDATE_JOURNAL", updatedJournal);
+    return updatedJournal;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // The .code property can be accessed in a type-safe manner
+      if (error.code === "P2002") {
+        throw new Error("There is a unique constraint violation, there is already a journal entry for this date");
+      }
+    }
+    throw new Error(error.message);
+  }
 }
 
 async function deleteJournal(parent, args, context, info) {

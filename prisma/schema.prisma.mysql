@@ -21,8 +21,8 @@ model client {
   idClient    Int          @id @default(autoincrement())
   Name        String       @db.VarChar(45)
   Description String       @db.VarChar(100)
-  StartDate   DateTime     @db.Date
-  EndDate     DateTime?    @db.Date
+  StartDate   DateTime     @db.DateTime
+  EndDate     DateTime?    @db.DateTime
   profile     profile      @relation(fields: [idProfile], references: [idProfile], onDelete: NoAction, onUpdate: NoAction, map: "fk_Client_idProfile")
   journal     journal[]
   project     project[]
@@ -91,9 +91,4 @@ model journal {
   @@index([idClient], map: "fk_Journal_2_idx")
   @@index([idProject], map: "fk_Journal_3_idx")
   @@index([idSubproject], map: "fk_Journal_4_idx")
-}
-
-model schema_migrations {
-  version BigInt  @id
-  dirty   Boolean
 }

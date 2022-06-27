@@ -202,7 +202,7 @@ async function clients(parent, args, context) {
       journal: journalIncludes,
     },
   });
-  return { list, count };
+  return { count, list };
 }
 
 async function projects(parent, args, context) {

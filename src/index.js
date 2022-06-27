@@ -67,6 +67,8 @@ async function startApolloServer() {
     schema: schema,
     csrfPrevention: true,
     introspection: true,
+    cache: "bounded",
+    //debug: true,
     context: ({ req }) => {
       return {
         ...req,
@@ -82,7 +84,7 @@ async function startApolloServer() {
         async serverWillStart() {
           return {
             async drainServer() {
-              await subscriptionServer.close();
+              subscriptionServer.close();
             },
           };
         },
