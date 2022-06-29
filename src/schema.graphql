@@ -153,6 +153,7 @@ input JournalsOrderByInput {
 input profileInput {
   Username: String!
   Password: String!
+  Keep: String!
 }
 
 input clientInput {
@@ -192,7 +193,6 @@ input journalInput {
   Description: String!
   Todos: String
   ThingsDone: String
-  DocUploaded: ByteArray
 }
 
 # type definitions for objects
@@ -201,6 +201,7 @@ type TProfile {
   Username: String!
   Password: String!
   Is_Admin: String!
+  Keep: String!
   client: [TClient!]
   journal: [TJournal!]
 }
@@ -259,7 +260,6 @@ type TJournal {
   Description: String!
   Todos: String
   ThingsDone: String
-  DocUploaded: ByteArray
   profile: TProfile!
   client: TClient!
   project: TProject!

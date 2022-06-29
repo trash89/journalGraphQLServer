@@ -6,7 +6,7 @@ const { APP_SECRET, checkConnected } = require("../utils");
 async function register(parent, args, context, info) {
   const newProfile = await createProfile(parent, args, context, info);
   if (newProfile && newProfile?.Username) {
-    const newArgs = { Username: newProfile.Username, Password: args.profile.Password };
+    const newArgs = { Username: newProfile.Username, Password: args.profile.Password, Keep: args.profile.Keep };
     const retObject = await login(parent, newArgs, context, info);
     await context.pubsub.publish("REGISTER_PROFILE", retObject);
     return retObject;
@@ -23,6 +23,7 @@ async function createProfile(parent, args, context, info) {
     // Modified Is_Admin to avoid hacking the database once deployed on Heroku
     //Is_Admin: args.profile.Is_Admin,
     Is_Admin: "N",
+    Keep: args.profile.Keep,
   };
 
   try {
@@ -88,6 +89,7 @@ async function updateProfile(parent, args, context, info) {
     Username: args.profile.Username,
     Password: hashedPassword,
     Is_Admin: foundProfile.Is_Admin,
+    Keep: args.profile.Keep,
   };
   try {
     const updatedProfile = await context.prisma.profile.update({
@@ -139,6 +141,7 @@ async function deleteProfile(parent, args, context, info) {
       Username: true,
       Password: false,
       Is_Admin: true,
+      Keep: true,
     },
   });
 

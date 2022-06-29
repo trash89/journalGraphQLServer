@@ -60,7 +60,6 @@ const journalIncludes = {
     Description: true,
     Todos: true,
     ThingsDone: true,
-    DocUploaded: true,
   },
 };
 

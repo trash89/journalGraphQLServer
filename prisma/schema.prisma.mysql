@@ -12,6 +12,7 @@ model profile {
   Username  String    @unique(map: "Profile_UNIQUE") @db.VarChar(45)
   Password  String    @db.VarChar(100)
   Is_Admin  String    @default("N") @db.Char(1)
+  Keep      String    @default("N") @db.Char(1)
   client    client[]
   journal   journal[]
 }
@@ -80,7 +81,6 @@ model journal {
   Description  String     @db.Text
   Todos        String?    @db.Text
   ThingsDone   String?    @db.Text
-  DocUploaded  Bytes?     @db.Blob
   client       client     @relation(fields: [idClient], references: [idClient], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idClient")
   profile      profile    @relation(fields: [idProfile], references: [idProfile], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idProfile")
   project      project    @relation(fields: [idProject], references: [idProject], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idProject")

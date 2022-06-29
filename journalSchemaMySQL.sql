@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `journal`.`profile` (
   `Username` VARCHAR(45) NOT NULL,
   `Password` VARCHAR(100) NOT NULL,
   `Is_Admin` CHAR(1) NOT NULL DEFAULT 'N',
+  `Keep` CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`idProfile`),
   UNIQUE INDEX `Profile_UNIQUE` (`Username` ASC) VISIBLE)
 ENGINE = InnoDB
@@ -108,7 +109,6 @@ CREATE TABLE IF NOT EXISTS `journal`.`journal` (
   `Description` TEXT NOT NULL,
   `Todos` TEXT NULL DEFAULT NULL,
   `ThingsDone` TEXT NULL DEFAULT NULL,
-  `DocUploaded` BLOB NULL DEFAULT NULL,
   PRIMARY KEY (`idJournal`),
   UNIQUE INDEX `Journal_UNIQUE` (`idProfile` ASC, `idClient` ASC, `idProject` ASC, `idSubproject` ASC, `EntryDate` ASC) VISIBLE,
   INDEX `fk_Journal_2_idx` (`idClient` ASC) VISIBLE,

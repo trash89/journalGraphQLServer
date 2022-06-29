@@ -107,13 +107,13 @@ In GraphQL Playground, launch the following mutation to register a profile:
 
 ```
 mutation{
-  register(profile:{Username:"test@test.com",Password:"testpwd",Is_Admin:"N"}){
+  register(profile:{Username:"test@test.com",Password:"testpwd",Keep:"N"}){
     token
     profile{
       idProfile
       Username
-      Password
       Is_Admin
+      Keep
     }
   }
 }
