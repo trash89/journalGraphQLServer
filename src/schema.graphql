@@ -146,7 +146,6 @@ input JournalsOrderByInput {
   EntryDate: Sort
   Description: Sort
   Todos: Sort
-  ThingsDone: Sort
 }
 
 # inputs for create,update...
@@ -192,7 +191,6 @@ input journalInput {
   EntryDate: DateTime!
   Description: String!
   Todos: String
-  ThingsDone: String
 }
 
 # type definitions for objects
@@ -259,7 +257,6 @@ type TJournal {
   EntryDate: DateTime!
   Description: String!
   Todos: String
-  ThingsDone: String
   profile: TProfile!
   client: TClient!
   project: TProject!

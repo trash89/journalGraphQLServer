@@ -143,7 +143,7 @@ startApolloServer();
 async function cleanupDatabase() {
   //build profile list to be deleted
   const profilesToDelete = await prisma.profile.findMany({
-    where: { idProfile: { notIn: [1, 2] } },
+    where: { AND: [{ idProfile: { notIn: [1, 2] } }, { Keep: { notIn: "Y" } }] },
   });
   const arrayProfilesToDelete = profilesToDelete.map((profile) => profile.idProfile);
   console.log("Profiles to delete:", arrayProfilesToDelete);
@@ -158,7 +158,7 @@ async function cleanupDatabase() {
   // delete from journal where idProfile not in (1,2)
   const deleteJournal = prisma.journal.deleteMany({
     where: {
-      idProfile: { notIn: [1, 2] },
+      idProfile: { notIn: arrayProfilesToDelete },
     },
   });
 
@@ -174,13 +174,13 @@ async function cleanupDatabase() {
 
   // delete from client where idProfile  not in [1, 2]
   const deleteClient = prisma.client.deleteMany({
-    where: { idProfile: { notIn: [1, 2] } },
+    where: { idProfile: { in: arrayProfilesToDelete } },
   });
 
   // delete from profile where idProfile  not in [1, 2]
   const deleteProfile = prisma.profile.deleteMany({
     where: {
-      idProfile: { notIn: [1, 2] },
+      idProfile: { in: arrayProfilesToDelete },
     },
   });
 

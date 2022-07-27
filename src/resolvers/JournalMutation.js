@@ -19,7 +19,6 @@ async function createJournal(parent, args, context, info) {
     EntryDate: args.journal.EntryDate,
     Description: args.journal.Description,
     Todos: args.journal.Todos,
-    ThingsDone: args.journal.ThingsDone,
   };
   try {
     const createdJournal = await context.prisma.journal.create({
@@ -63,7 +62,6 @@ async function updateJournal(parent, args, context, info) {
     EntryDate: args.journal.EntryDate,
     Description: args.journal.Description,
     Todos: args.journal.Todos,
-    ThingsDone: args.journal.ThingsDone,
   };
   try {
     const updatedJournal = await context.prisma.journal.update({
@@ -105,7 +103,6 @@ async function deleteJournal(parent, args, context, info) {
       EntryDate: true,
       Description: true,
       Todos: true,
-      ThingsDone: true,
     },
   });
 

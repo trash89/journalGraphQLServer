@@ -108,7 +108,6 @@ CREATE TABLE IF NOT EXISTS `journal`.`journal` (
   `EntryDate` DATETIME NOT NULL,
   `Description` TEXT NOT NULL,
   `Todos` TEXT NULL DEFAULT NULL,
-  `ThingsDone` TEXT NULL DEFAULT NULL,
   PRIMARY KEY (`idJournal`),
   UNIQUE INDEX `Journal_UNIQUE` (`idProfile` ASC, `idClient` ASC, `idProject` ASC, `idSubproject` ASC, `EntryDate` ASC) VISIBLE,
   INDEX `fk_Journal_2_idx` (`idClient` ASC) VISIBLE,

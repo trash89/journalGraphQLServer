@@ -59,7 +59,6 @@ const journalIncludes = {
     EntryDate: true,
     Description: true,
     Todos: true,
-    ThingsDone: true,
   },
 };
 
@@ -299,14 +298,14 @@ async function journals(parent, args, context) {
   if (foundConnected.Is_Admin === "Y") {
     where = args.filter
       ? {
-          OR: [{ Description: { contains: args.filter } }, { Todos: { contains: args.filter } }, { ThingsDone: { contains: args.filter } }],
+          OR: [{ Description: { contains: args.filter } }, { Todos: { contains: args.filter } }],
         }
       : {};
   } else {
     where = args.filter
       ? {
           idProfile: idProfileConnected,
-          OR: [{ Description: { contains: args.filter } }, { Todos: { contains: args.filter } }, { ThingsDone: { contains: args.filter } }],
+          OR: [{ Description: { contains: args.filter } }, { Todos: { contains: args.filter } }],
         }
       : {
           idProfile: idProfileConnected,

@@ -80,7 +80,6 @@ model journal {
   EntryDate    DateTime   @db.Date
   Description  String
   Todos        String?
-  ThingsDone   String?
   client       client     @relation(fields: [idClient], references: [idClient], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idClient")
   profile      profile    @relation(fields: [idProfile], references: [idProfile], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idProfile")
   project      project    @relation(fields: [idProject], references: [idProject], onDelete: NoAction, onUpdate: NoAction, map: "fk_Journal_idProject")
